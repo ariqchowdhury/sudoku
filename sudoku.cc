@@ -18,6 +18,14 @@ class Gameboard {
 
     std::vector<std::vector<int>> spaces;
 
+    int get_space(int i, int j) const {
+        return spaces[i][j];
+    } 
+
+    void set_space(int i, int j, int n) {
+        spaces[i][j] = n;
+    }
+
     // A valid row, col or subsquare will have no duplicates of the values
     // 1-9. 0s are allowed as they represent blank spaces
     
@@ -29,12 +37,12 @@ class Gameboard {
             std::unordered_set<int> unique_vals;
 
             for (auto j = 0; j < cols; ++j) {
-                auto c = spaces[0][0];
+                decltype(get_space(0, 0)) c; 
 
                 if (Dimension::Row == d) {
-                    c = spaces[i][j];
+                    c = get_space(i, j);
                 } else if (Dimension::Column == d) {
-                    c = spaces[j][i];
+                    c = get_space(j, i);
                 } else {
                     assert(false && "game board is only 2d");
                 }
@@ -79,7 +87,7 @@ class Gameboard {
 
         for (auto i = 0; i < ss_dim; ++i) {
             for (auto j = 0; j < ss_dim; ++j) {
-                auto c = spaces[i+m][j+n];
+                auto c = get_space(i+m, j+n);
 
                 if (c == 0) {
                     continue;
@@ -181,18 +189,18 @@ public:
 
         for (auto i = 0; i < rows; ++i) {
             for (auto j = 0; j < cols; ++j) {
-                if (spaces[i][j] == 0) {
+                if (get_space(i, j) == 0) {
                     
                     // for the possible sudoku values
                     for (auto p : {1, 2, 3, 4, 5, 6, 7, 8, 9}) {
-                        spaces[i][j] = p;
+                        set_space(i, j, p);
 
                         if (solve()) {
                             return true;
                         }
 
                         // attempted p lead to an invalid board so try another
-                        spaces[i][j] = 0;
+                        set_space(i, j, 0);
                     }
 
                     // All values lead to invalid boards so backtrack
