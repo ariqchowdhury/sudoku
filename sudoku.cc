@@ -63,6 +63,48 @@ class Gameboard {
         return true;
     }
 
+
+    bool valid_dimension(Dimension d, int m) const {
+        std::unordered_set<int> unique_vals;
+        decltype(rows) ind;
+
+        // If we are checking rows, the number of items
+        // in the row is the number of cols and vice versa
+        if (Dimension::Row == d) {
+            ind = cols; 
+        } else if (Dimension::Column == d) {
+            ind = rows;
+        } else {
+            assert(false && "game board is only 2d");
+        }
+        
+
+        for (auto j = 0; j < ind; ++j) {
+            decltype(get_space(0, 0)) c; 
+
+            if (Dimension::Row == d) {
+                c = get_space(m, j);
+            } else if (Dimension::Column == d) {
+                c = get_space(j, m);
+            } else {
+                assert(false && "game board is only 2d");
+            }
+
+            if (c == 0) {
+                continue;
+            }
+
+            if (unique_vals.find(c) != unique_vals.end()) {
+               return false;
+            } else {
+                unique_vals.insert(c);
+            }
+            
+        }
+
+        return true;
+    }
+
     bool valid_sub_squares() const {
         for (auto i = 0; i < rows; i += ss_dim) {
             for (auto j = 0; j < cols; j += ss_dim) {
@@ -174,12 +216,35 @@ public:
                valid_sub_squares();
     }
 
+    bool is_valid_state_diff(int i, int j) const {
+        return valid_dimension(Dimension::Row, i) &&
+               valid_dimension(Dimension::Column, j) &&
+               valid_square(i, j);
+    }
+
     // This function attempts to solve the sudoku puzzle from the given 
     // board state.
     // Use recursive backtracking to find a solution
     // This function will modify the board state with the solution
     bool solve() {
-        if (!is_valid_state()) {
+
+        // Check that the initial board state we begin solving from is valid
+        if (is_valid_state()) {
+            return solve(0, 0);
+        } else {
+            return false;
+        }
+    } 
+
+private:
+
+    // Solve by recursive backtrack but instead of checking that the entire board
+    // state is valid after every attempt, only check if the last point added is 
+    // valid as everything before it must also have been valid
+    bool solve(int m, int n) {
+
+        // Check that this specific point is valid amongst the rest of the board
+        if (!is_valid_state_diff(m, n)) {
             return false;
         }
 
@@ -195,7 +260,7 @@ public:
                     for (auto p : {1, 2, 3, 4, 5, 6, 7, 8, 9}) {
                         set_space(i, j, p);
 
-                        if (solve()) {
+                        if (solve(i, j)) {
                             return true;
                         }
 
