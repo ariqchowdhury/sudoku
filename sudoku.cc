@@ -2,44 +2,40 @@
 #include <iostream>
 #include <string>
 #include <unordered_set>
+#include <cassert>
 
 class Gameboard {
     int rows;
     int cols;
+
+    enum class Dimension {
+        Row,
+        Column
+    };
 
     std::vector<std::vector<int>> spaces;
 
     // A valid row, col or subsquare will have no duplicates of the values
     // 1-9. 0s are allowed as they represent blank spaces
     
-    bool valid_rows() const {
-        for (auto r : spaces) {
-            std::unordered_set<int> unique_vals;
-
-            for (auto c : r) {
-                if (c == 0) {
-                    continue;
-                }
-                if (unique_vals.find(c) != unique_vals.end()) {
-                   return false;
-                } else {
-                    unique_vals.insert(c);
-                }
-            }
-        }
-
-        return true;
-    }
-
     // TODO(ARIQ): searching columns is inefficient with vector of vectors
     //             if eachcolumn had itsown vector so it was contiguous...
     //             
-    bool valid_cols() const {
+    bool valid_dimension(Dimension d) const {
         for (auto i = 0; i < rows; ++i) {
             std::unordered_set<int> unique_vals;
 
             for (auto j = 0; j < cols; ++j) {
-                auto c = spaces[j][i];
+                auto c = spaces[0][0];
+
+                if (Dimension::Row == d) {
+                    c = spaces[i][j];
+                } else if (Dimension::Column == d) {
+                    c = spaces[j][i];
+                } else {
+                    assert(false && "game board is only 2d");
+                }
+
                 if (c == 0) {
                     continue;
                 }
@@ -112,7 +108,9 @@ public:
     // Check if the state of thespaces in the gameboard consititues
     // a valid sudoku state 
     bool is_valid_state() const {
-        return valid_rows() && valid_cols() && valid_sub_squares();
+        return valid_dimension(Dimension::Row) && 
+               valid_dimension(Dimension::Column) && 
+               valid_sub_squares();
     }
 
 };
