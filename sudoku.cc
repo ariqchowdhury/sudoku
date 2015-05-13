@@ -19,7 +19,7 @@ class Gameboard {
     // 1-9. 0s are allowed as they represent blank spaces
     
     // TODO(ARIQ): searching columns is inefficient with vector of vectors
-    //             if eachcolumn had itsown vector so it was contiguous...
+    //             if each column had its own vector so it was contiguous...
     //             
     bool valid_dimension(Dimension d) const {
         for (auto i = 0; i < rows; ++i) {
