@@ -20,11 +20,20 @@ public:
         }
     }
 
-    ~Gameboard() {
+    ~Gameboard() {}
+
+    void print() const {
+        for (auto r : spaces) {
+            for (auto c : r) {
+                std::cout << "[" << c << "]";
+            }
+            std::cout << std::endl;
+        }
     }
 
 };
 
 int main() {
     Gameboard gb(3, 3);
+    gb.print();
 }
