@@ -8,6 +8,9 @@ class Gameboard {
     int rows;
     int cols;
 
+    //sub square dimensions
+    static const int ss_dim = 3;
+
     enum class Dimension {
         Row,
         Column
@@ -53,6 +56,43 @@ class Gameboard {
     }
 
     bool valid_sub_squares() const {
+        for (auto i = 0; i < rows; i += ss_dim) {
+            for (auto j = 0; j < cols; j += ss_dim) {
+                if (!valid_square(i, j)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Given a point (m, n) in the board, check that the 3x3 subsquare 
+    // containing the point is a valid sudoku subsquare
+    bool valid_square(int m, int n) const {
+        // int div by ss_dim gives which nth subsquare the coordinate is in
+        // then mult by ss_dim to get the ndex of the (0,0) point of the sub
+        // square
+        m = (m / ss_dim) * ss_dim;
+        n = (n / ss_dim) * ss_dim;
+
+        std::unordered_set<int> unique_vals;
+
+        for (auto i = 0; i < ss_dim; ++i) {
+            for (auto j = 0; j < ss_dim; ++j) {
+                auto c = spaces[i+m][j+n];
+
+                if (c == 0) {
+                    continue;
+                }
+
+                if (unique_vals.find(c) != unique_vals.end()) {
+                   return false;
+                } else {
+                    unique_vals.insert(c);
+                }
+
+            }
+        }
 
         return true;
     }
@@ -115,7 +155,11 @@ public:
 
 };
 
+bool tests();
+
 int main() {
+    assert(tests());
+
     Gameboard gb(9, 9);
     std::string board = 
         "000006003"
@@ -132,4 +176,35 @@ int main() {
 
     if (gb.is_valid_state())
         gb.print();
+}
+
+
+
+
+
+
+bool tests() {
+    Gameboard gb(9, 9);
+    std::string board = 
+        "000006003"
+        "600040002"
+        "010570400"
+        "009007801"
+        "000000000"
+        "708600300"
+        "004068050"
+        "900030004"
+        "800200040";
+
+    gb.set(board);
+
+    assert(!gb.is_valid_state() && "subsquares have duplicates so this should be invalid");
+
+    Gameboard small(3,3);
+    small.set("123456789");
+    assert(small.is_valid_state() && "3x3 with all unique should be valid");
+    small.set("123456389");
+    assert(small.is_valid_state() && "3x3 with duplicate should be invalid");
+
+    return true;
 }
