@@ -1,12 +1,45 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <unordered_set>
 
 class Gameboard {
     int rows;
     int cols;
 
     std::vector<std::vector<int>> spaces;
+
+    // A valid row, col or subsquare will have no duplicates of the values
+    // 1-9. 0s are allowed as they represent blank spaces
+    
+    bool valid_rows() const {
+        for (auto r : spaces) {
+            std::unordered_set<int> unique_vals;
+
+            for (auto c : r) {
+                if (c == 0) {
+                    continue;
+                }
+                if (unique_vals.find(c) != unique_vals.end()) {
+                   return false;
+                } else {
+                    unique_vals.insert(c);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool valid_cols() const {
+
+        return true;
+    }
+
+    bool valid_sub_squares() const {
+
+        return true;
+    }
 
 public:
     Gameboard(int r, int c) :
@@ -26,7 +59,11 @@ public:
     void print() const {
         for (auto r : spaces) {
             for (auto c : r) {
-                std::cout << "[" << c << "]";
+                if (c == 0) {
+                    std::cout << "[" << " " << "]";
+                } else {
+                    std::cout << "[" << c << "]";
+                }
             }
             std::cout << std::endl;
         }
@@ -52,10 +89,29 @@ public:
         }
     }
 
+    // Check if the state of thespaces in the gameboard consititues
+    // a valid sudoku state 
+    bool is_valid_state() const {
+        return valid_rows() && valid_cols() && valid_sub_squares();
+    }
+
 };
 
 int main() {
-    Gameboard gb(3, 3);
-    gb.set("123456789");
-    gb.print();
+    Gameboard gb(9, 9);
+    std::string board = 
+        "000006003"
+        "600040002"
+        "010570400"
+        "009007801"
+        "000000000"
+        "708600300"
+        "004068050"
+        "900030004"
+        "800200000";
+
+    gb.set(board);
+
+    if (gb.is_valid_state())
+        gb.print();
 }
