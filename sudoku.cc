@@ -70,7 +70,7 @@ class Gameboard {
     // containing the point is a valid sudoku subsquare
     bool valid_square(int m, int n) const {
         // int div by ss_dim gives which nth subsquare the coordinate is in
-        // then mult by ss_dim to get the ndex of the (0,0) point of the sub
+        // then mult by ss_dim to get the index of the (0,0) point of the sub
         // square
         m = (m / ss_dim) * ss_dim;
         n = (n / ss_dim) * ss_dim;
@@ -91,6 +91,19 @@ class Gameboard {
                     unique_vals.insert(c);
                 }
 
+            }
+        }
+
+        return true;
+    }
+
+    // check all rows to see if there are any black spaces
+    bool board_filled() const {
+        for (auto r : spaces) {
+            for (auto c : r) {
+                if (c == 0) {
+                    return false;
+                }
             }
         }
 
@@ -153,6 +166,45 @@ public:
                valid_sub_squares();
     }
 
+    // This function attempts to solve the sudoku puzzle from the given 
+    // board state.
+    // Use recursive backtracking to find a solution
+    // This function will modify the board state with the solution
+    bool solve() {
+        if (!is_valid_state()) {
+            return false;
+        }
+
+        if (board_filled()) {
+            return true;
+        }
+
+        for (auto i = 0; i < rows; ++i) {
+            for (auto j = 0; j < cols; ++j) {
+                if (spaces[i][j] == 0) {
+                    
+                    // for the possible sudoku values
+                    for (auto p : {1, 2, 3, 4, 5, 6, 7, 8, 9}) {
+                        spaces[i][j] = p;
+
+                        if (solve()) {
+                            return true;
+                        }
+
+                        // attempted p lead to an invalid board so try another
+                        spaces[i][j] = 0;
+                    }
+
+                    // All values lead to invalid boards so backtrack
+                    return false;
+                }
+            }
+        }
+
+        // Went through all combinations and found no solution
+        return false;
+    }
+
 };
 
 bool tests();
@@ -174,8 +226,17 @@ int main() {
 
     gb.set(board);
 
-    if (gb.is_valid_state())
+    if (gb.is_valid_state()) {
+        std::cout << "Initial Board:" << std::endl;
         gb.print();
+    }
+
+    if (gb.solve()) {
+        std::cout << "Solution:" << std::endl;
+        gb.print();
+    } else {
+        std::cout << "No Solution Found" << std::endl;
+    }
 }
 
 
@@ -204,7 +265,7 @@ bool tests() {
     small.set("123456789");
     assert(small.is_valid_state() && "3x3 with all unique should be valid");
     small.set("123456389");
-    assert(small.is_valid_state() && "3x3 with duplicate should be invalid");
+    assert(!small.is_valid_state() && "3x3 with duplicate should be invalid");
 
     return true;
 }
