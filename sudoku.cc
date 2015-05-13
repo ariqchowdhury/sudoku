@@ -31,7 +31,27 @@ class Gameboard {
         return true;
     }
 
+    // TODO(ARIQ): searching columns is inefficient with vector of vectors
+    //             if eachcolumn had itsown vector so it was contiguous...
+    //             
     bool valid_cols() const {
+        for (auto i = 0; i < rows; ++i) {
+            std::unordered_set<int> unique_vals;
+
+            for (auto j = 0; j < cols; ++j) {
+                auto c = spaces[j][i];
+                if (c == 0) {
+                    continue;
+                }
+
+                if (unique_vals.find(c) != unique_vals.end()) {
+                   return false;
+                } else {
+                    unique_vals.insert(c);
+                }
+                
+            }
+        }
 
         return true;
     }
