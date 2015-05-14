@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_set>
 #include <cassert>
+#include <chrono>
 
 template <class T>
 class Gameboard {
@@ -285,7 +286,9 @@ bool tests();
 int main() {
     assert(tests());
 
-    Gameboard<short int> gb;
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+
+    Gameboard<unsigned short int> gb;
     std::string board = 
         "000006003"
         "600040002"
@@ -299,6 +302,7 @@ int main() {
 
     gb.set(board);
 
+    start = std::chrono::system_clock::now();
     if (gb.is_valid_state()) {
         std::cout << "Initial Board:" << std::endl;
         gb.print();
@@ -310,6 +314,11 @@ int main() {
     } else {
         std::cout << "No Solution Found" << std::endl;
     }
+    end = std::chrono::system_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+
+    std::cout << "Time to solve: " << duration << " us" << std::endl;
 }
 
 
