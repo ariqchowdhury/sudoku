@@ -12,6 +12,7 @@ class Gameboard {
 
     //sub square dimensions
     static const int ss_dim = 3;
+    std::array<T, 9> ss_lut;
 
     // Track the number of blank spaces on the board
     int freespaces;
@@ -28,7 +29,7 @@ class Gameboard {
     } 
 
     void set_space(int i, int j, int n) {
-        assert((n >=  || n < 10) && "spaces can only have values between 0-9");
+        assert((n >= 0 || n < 10) && "spaces can only have values between 0-9");
 
         spaces[i][j] = n;
         if (n == 0) {
@@ -124,8 +125,8 @@ class Gameboard {
         // int div by ss_dim gives which nth subsquare the coordinate is in
         // then mult by ss_dim to get the index of the (0,0) point of the sub
         // square
-        m = (m / ss_dim) * ss_dim;
-        n = (n / ss_dim) * ss_dim;
+        m = ss_lut[m];
+        n = ss_lut[n];
 
         std::array<T, dim+1> unique_vals;
         for (auto &j : unique_vals) {
@@ -171,6 +172,14 @@ public:
             spaces.push_back(col_vec);
         }
         freespaces = dim*dim;
+
+        // int div by ss_dim gives which nth subsquare the coordinate is in
+        // then mult by ss_dim to get the index of the (0,0) point of the sub
+        // square
+        // pre-calculate these values into an array for faster lookup
+        for (auto i = 0; i < dim; ++i) {
+            ss_lut[i] = (i / ss_dim) * ss_dim;
+        }
     }
 
     ~Gameboard() {}
@@ -344,9 +353,9 @@ bool tests() {
     assert(!gb.is_valid_state() && "subsquares have duplicates so this should be invalid");
 
     Gameboard<int> small;
-    small.set("123000456000789");
+    small.set("123000000456000000789");
     assert(small.is_valid_state() && "3x3 with all unique should be valid");
-    small.set("123000456000389");
+    small.set("123000000456000000389");
     assert(!small.is_valid_state() && "3x3 with duplicate should be invalid");
 
     return true;
