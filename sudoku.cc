@@ -10,6 +10,9 @@ class Gameboard {
     //sub square dimensions
     static const int ss_dim = 3;
 
+    // Track the number of blank spaces on the board
+    int freespaces;
+
     enum class Dimension {
         Row,
         Column
@@ -22,7 +25,14 @@ class Gameboard {
     } 
 
     void set_space(int i, int j, int n) {
+        assert((n >=  || n < 10) && "spaces can only have values between 0-9");
+
         spaces[i][j] = n;
+        if (n == 0) {
+            freespaces++;
+        } else {
+            freespaces--;
+        }
     }
 
     // A valid row, col or subsquare will have no duplicates of the values
@@ -136,15 +146,11 @@ class Gameboard {
 
     // check all rows to see if there are any black spaces
     bool board_filled() const {
-        for (auto r : spaces) {
-            for (auto c : r) {
-                if (c == 0) {
-                    return false;
-                }
-            }
+        if (freespaces != 0) {
+            return false;
+        } else {
+            return true;
         }
-
-        return true;
     }
 
 public:
@@ -156,6 +162,7 @@ public:
             }
             spaces.push_back(col_vec);
         }
+        freespaces = dim*dim;
     }
 
     ~Gameboard() {}
@@ -187,6 +194,7 @@ public:
                     c = 0; 
                 } else {
                     c = space;
+                    freespaces--;
                 }
                 ++next_space;
             } 
