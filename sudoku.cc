@@ -1,4 +1,5 @@
 #include <vector>
+#include <array>
 #include <iostream>
 #include <string>
 #include <unordered_set>
@@ -74,7 +75,10 @@ class Gameboard {
 
 
     bool valid_dimension(Dimension d, int m) const {
-        std::unordered_set<int> unique_vals;
+        std::array<int, dim+1> unique_vals;
+        for (auto &j : unique_vals) {
+            j = 0;
+        }
 
         for (auto j = 0; j < dim; ++j) {
             decltype(get_space(0, 0)) c; 
@@ -91,12 +95,11 @@ class Gameboard {
                 continue;
             }
 
-            if (unique_vals.find(c) != unique_vals.end()) {
-               return false;
+            if (unique_vals[c] > 0) {
+                return false;
             } else {
-                unique_vals.insert(c);
+                unique_vals[c]++;
             }
-            
         }
 
         return true;
