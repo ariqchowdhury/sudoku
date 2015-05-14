@@ -5,8 +5,7 @@
 #include <cassert>
 
 class Gameboard {
-    int rows;
-    int cols;
+    static const int dim = 9;
 
     //sub square dimensions
     static const int ss_dim = 3;
@@ -33,10 +32,10 @@ class Gameboard {
     //             if each column had its own vector so it was contiguous...
     //             
     bool valid_dimension(Dimension d) const {
-        for (auto i = 0; i < rows; ++i) {
+        for (auto i = 0; i < dim; ++i) {
             std::unordered_set<int> unique_vals;
 
-            for (auto j = 0; j < cols; ++j) {
+            for (auto j = 0; j < dim; ++j) {
                 decltype(get_space(0, 0)) c; 
 
                 if (Dimension::Row == d) {
@@ -66,20 +65,8 @@ class Gameboard {
 
     bool valid_dimension(Dimension d, int m) const {
         std::unordered_set<int> unique_vals;
-        decltype(rows) ind;
 
-        // If we are checking rows, the number of items
-        // in the row is the number of cols and vice versa
-        if (Dimension::Row == d) {
-            ind = cols; 
-        } else if (Dimension::Column == d) {
-            ind = rows;
-        } else {
-            assert(false && "game board is only 2d");
-        }
-        
-
-        for (auto j = 0; j < ind; ++j) {
+        for (auto j = 0; j < dim; ++j) {
             decltype(get_space(0, 0)) c; 
 
             if (Dimension::Row == d) {
@@ -106,8 +93,8 @@ class Gameboard {
     }
 
     bool valid_sub_squares() const {
-        for (auto i = 0; i < rows; i += ss_dim) {
-            for (auto j = 0; j < cols; j += ss_dim) {
+        for (auto i = 0; i < dim; i += ss_dim) {
+            for (auto j = 0; j < dim; j += ss_dim) {
                 if (!valid_square(i, j)) {
                     return false;
                 }
@@ -161,12 +148,10 @@ class Gameboard {
     }
 
 public:
-    Gameboard(int r, int c) :
-        rows(r), cols(c) 
-    {
-        for (auto i = 0; i < rows; ++i) {
+    Gameboard() {
+        for (auto i = 0; i < dim; ++i) {
             std::vector<int> col_vec;
-            for (auto j = 0; j < cols; ++j) {
+            for (auto j = 0; j < dim; ++j) {
                 col_vec.push_back(0);
             }
             spaces.push_back(col_vec);
@@ -252,8 +237,8 @@ private:
             return true;
         }
 
-        for (auto i = 0; i < rows; ++i) {
-            for (auto j = 0; j < cols; ++j) {
+        for (auto i = 0; i < dim; ++i) {
+            for (auto j = 0; j < dim; ++j) {
                 if (get_space(i, j) == 0) {
                     
                     // for the possible sudoku values
@@ -285,7 +270,7 @@ bool tests();
 int main() {
     assert(tests());
 
-    Gameboard gb(9, 9);
+    Gameboard gb;
     std::string board = 
         "000006003"
         "600040002"
@@ -318,7 +303,7 @@ int main() {
 
 
 bool tests() {
-    Gameboard gb(9, 9);
+    Gameboard gb;
     std::string board = 
         "000006003"
         "600040002"
@@ -334,10 +319,10 @@ bool tests() {
 
     assert(!gb.is_valid_state() && "subsquares have duplicates so this should be invalid");
 
-    Gameboard small(3,3);
-    small.set("123456789");
+    Gameboard small;
+    small.set("123000456000789");
     assert(small.is_valid_state() && "3x3 with all unique should be valid");
-    small.set("123456389");
+    small.set("123000456000389");
     assert(!small.is_valid_state() && "3x3 with duplicate should be invalid");
 
     return true;
