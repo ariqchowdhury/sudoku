@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <cassert>
 
+template <class T>
 class Gameboard {
     static const int dim = 9;
 
@@ -19,7 +20,7 @@ class Gameboard {
         Column
     };
 
-    std::vector<std::vector<int>> spaces;
+    std::vector<std::vector<T>> spaces;
 
     int get_space(int i, int j) const {
         return spaces[i][j];
@@ -44,7 +45,7 @@ class Gameboard {
     //             
     bool valid_dimension(Dimension d) const {
         for (auto i = 0; i < dim; ++i) {
-            std::unordered_set<int> unique_vals;
+            std::unordered_set<T> unique_vals;
 
             for (auto j = 0; j < dim; ++j) {
                 decltype(get_space(0, 0)) c; 
@@ -75,7 +76,7 @@ class Gameboard {
 
 
     bool valid_dimension(Dimension d, int m) const {
-        std::array<int, dim+1> unique_vals;
+        std::array<T, dim+1> unique_vals;
         for (auto &j : unique_vals) {
             j = 0;
         }
@@ -125,7 +126,7 @@ class Gameboard {
         m = (m / ss_dim) * ss_dim;
         n = (n / ss_dim) * ss_dim;
 
-        std::array<int, dim+1> unique_vals;
+        std::array<T, dim+1> unique_vals;
         for (auto &j : unique_vals) {
             j = 0;
         }
@@ -162,7 +163,7 @@ class Gameboard {
 public:
     Gameboard() {
         for (auto i = 0; i < dim; ++i) {
-            std::vector<int> col_vec;
+            std::vector<T> col_vec;
             for (auto j = 0; j < dim; ++j) {
                 col_vec.push_back(0);
             }
@@ -284,7 +285,7 @@ bool tests();
 int main() {
     assert(tests());
 
-    Gameboard gb;
+    Gameboard<short int> gb;
     std::string board = 
         "000006003"
         "600040002"
@@ -317,7 +318,7 @@ int main() {
 
 
 bool tests() {
-    Gameboard gb;
+    Gameboard<int> gb;
     std::string board = 
         "000006003"
         "600040002"
@@ -333,7 +334,7 @@ bool tests() {
 
     assert(!gb.is_valid_state() && "subsquares have duplicates so this should be invalid");
 
-    Gameboard small;
+    Gameboard<int> small;
     small.set("123000456000789");
     assert(small.is_valid_state() && "3x3 with all unique should be valid");
     small.set("123000456000389");
