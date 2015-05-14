@@ -125,7 +125,10 @@ class Gameboard {
         m = (m / ss_dim) * ss_dim;
         n = (n / ss_dim) * ss_dim;
 
-        std::unordered_set<int> unique_vals;
+        std::array<int, dim+1> unique_vals;
+        for (auto &j : unique_vals) {
+            j = 0;
+        }
 
         for (auto i = 0; i < ss_dim; ++i) {
             for (auto j = 0; j < ss_dim; ++j) {
@@ -135,10 +138,10 @@ class Gameboard {
                     continue;
                 }
 
-                if (unique_vals.find(c) != unique_vals.end()) {
-                   return false;
+                if (unique_vals[c] > 0) {
+                    return false;
                 } else {
-                    unique_vals.insert(c);
+                    unique_vals[c]++;
                 }
 
             }
