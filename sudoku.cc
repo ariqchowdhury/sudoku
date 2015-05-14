@@ -14,6 +14,7 @@ class Gameboard {
     static const int ss_dim = 3;
 
     // Track the number of blank spaces on the board
+public:
     int freespaces;
 
     enum class Dimension {
@@ -21,18 +22,22 @@ class Gameboard {
         Column
     };
 
-    std::vector<std::vector<T>> spaces;
+    std::vector<T> spaces;
 
-    int get_space(int i, int j) const {
-        return spaces[i][j];
+    T get_space(int i, int j) const {
+        return spaces[i*dim + j];
     } 
 
-    void set_space(int i, int j, int n) {
+    void set_space(int i, int j, T n) {
         assert((n >=  || n < 10) && "spaces can only have values between 0-9");
 
-        spaces[i][j] = n;
+        auto idx = i*dim + j;
+        auto orig_val = spaces[idx];
+        spaces[idx] = n;
         if (n == 0) {
-            freespaces++;
+            if (orig_val != 0) {
+                freespaces++;
+            }
         } else {
             freespaces--;
         }
@@ -163,12 +168,8 @@ class Gameboard {
 
 public:
     Gameboard() {
-        for (auto i = 0; i < dim; ++i) {
-            std::vector<T> col_vec;
-            for (auto j = 0; j < dim; ++j) {
-                col_vec.push_back(0);
-            }
-            spaces.push_back(col_vec);
+        for (T i = 0; i < dim*dim; ++i) {
+            spaces.push_back(0);
         }
         freespaces = dim*dim;
     }
@@ -176,12 +177,12 @@ public:
     ~Gameboard() {}
 
     void print() const {
-        for (auto r : spaces) {
-            for (auto c : r) {
-                if (c == 0) {
+        for (auto i = 0; i < dim; ++i) {
+            for (auto j = 0; j < dim; ++j) {
+                if (get_space(i, j) == 0) {
                     std::cout << "[" << " " << "]";
                 } else {
-                    std::cout << "[" << c << "]";
+                    std::cout << "[" << get_space(i, j) << "]";
                 }
             }
             std::cout << std::endl;
@@ -195,17 +196,16 @@ public:
     void set(std::string init) {
         auto next_space = init.begin();
 
-        for (auto &r : spaces) {
-            for (auto &c : r) {
+        for (auto i = 0; i < dim; ++i) {
+            for (auto j = 0; j < dim; ++j) {
                 auto space = (*next_space) - '0';
                 if (space < 1 || space > 9) {
-                    c = 0; 
+                    set_space(i, j, 0); 
                 } else {
-                    c = space;
-                    freespaces--;
+                    set_space(i, j, space);
                 }
                 ++next_space;
-            } 
+            }
         }
     }
 
@@ -301,6 +301,7 @@ int main() {
         "800200000";
 
     gb.set(board);
+    std::cout << "freespaces: " << gb.freespaces<< std::endl;
 
     start = std::chrono::system_clock::now();
     if (gb.is_valid_state()) {
@@ -342,6 +343,8 @@ bool tests() {
     gb.set(board);
 
     assert(!gb.is_valid_state() && "subsquares have duplicates so this should be invalid");
+    assert(gb.is_valid_state_diff(0, 0) && "pos 0,0 should be valid");
+    assert(!gb.is_valid_state_diff(8, 8) && "pos 8,8 should not be valid");
 
     Gameboard<int> small;
     small.set("123000456000789");
